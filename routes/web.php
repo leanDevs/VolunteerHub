@@ -1,0 +1,47 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\OrgController;
+use App\Http\Controllers\VolunteerController;
+
+// Authentication
+Route::get('/', [AuthController::class, 'index'])->name('home');
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// Authenticated Routes
+Route::middleware(['auth'])->group(function () {
+    
+    // Notifications
+    Route::post('/notifications/{id}/read', [AuthController::class, 'markNotificationRead'])->name('notifications.read');
+    
+    // Administrator Group
+    Route::prefix('admin')->middleware('role:admin')->group(function () {
+        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+        Route::post('/orgs/{id}/approve', [AdminController::class, 'approveOrg'])->name('admin.orgs.approve');
+        Route::post('/orgs/{id}/reject', [AdminController::class, 'rejectOrg'])->name('admin.orgs.reject');
+        Route::post('/chatbot/rules', [AdminController::class, 'storeChatbotRule'])->name('admin.chatbot.rules.store');
+        Route::delete('/chatbot/rules/{id}', [AdminController::class, 'deleteChatbotRule'])->name('admin.chatbot.rules.destroy');
+        Route::post('/broadcast', [AdminController::class, 'broadcast'])->name('admin.broadcast');
+    });
+
+    // Partner Organization Group
+    Route::prefix('org')->middleware('role:organization')->group(function () {
+        Route::get('/dashboard', [OrgController::class, 'dashboard'])->name('org.dashboard');
+        Route::post('/events', [OrgController::class, 'storeEvent'])->name('org.events.store');
+        Route::post('/documents', [OrgController::class, 'uploadDocument'])->name('org.documents.store');
+    });
+
+    // Volunteer Group
+    Route::prefix('volunteer')->middleware('role:volunteer')->group(function () {
+        Route::get('/dashboard', [VolunteerController::class, 'dashboard'])->name('volunteer.dashboard');
+        Route::post('/skills', [VolunteerController::class, 'addSkill'])->name('volunteer.skills.store');
+        Route::delete('/skills/{id}', [VolunteerController::class, 'removeSkill'])->name('volunteer.skills.destroy');
+        Route::post('/availability', [VolunteerController::class, 'toggleAvailability'])->name('volunteer.availability.toggle');
+        Route::post('/tasks/{id}/complete', [VolunteerController::class, 'completeTask'])->name('volunteer.tasks.complete');
+        Route::get('/certificates/{id}/download', [VolunteerController::class, 'downloadCertificate'])->name('volunteer.certificates.download');
+    });
+});
