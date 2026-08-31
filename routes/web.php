@@ -10,10 +10,19 @@ use App\Http\Controllers\VolunteerController;
 Route::get('/', [AuthController::class, 'index'])->name('home');
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/register', [AuthController::class, 'showVolunteerRegister'])->name('register');
+Route::get('/register/volunteer', [AuthController::class, 'showVolunteerRegister'])->name('register.volunteer');
+Route::post('/register/volunteer', [AuthController::class, 'registerVolunteer']);
+Route::get('/register/organization', [AuthController::class, 'showOrgRegister'])->name('register.org');
+Route::post('/register/organization', [AuthController::class, 'registerOrg']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Authenticated Routes
 Route::middleware(['auth'])->group(function () {
+    
+    // Profile Management
+    Route::get('/profile', [AuthController::class, 'showProfile'])->name('profile.show');
+    Route::post('/profile', [AuthController::class, 'updateProfile'])->name('profile.update');
     
     // Notifications
     Route::post('/notifications/{id}/read', [AuthController::class, 'markNotificationRead'])->name('notifications.read');
@@ -43,5 +52,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/availability', [VolunteerController::class, 'toggleAvailability'])->name('volunteer.availability.toggle');
         Route::post('/tasks/{id}/complete', [VolunteerController::class, 'completeTask'])->name('volunteer.tasks.complete');
         Route::get('/certificates/{id}/download', [VolunteerController::class, 'downloadCertificate'])->name('volunteer.certificates.download');
+        Route::post('/chatbot/ask', [VolunteerController::class, 'askChatbot'])->name('volunteer.chatbot.ask');
+        Route::get('/chatbot/history', [VolunteerController::class, 'chatbotHistory'])->name('volunteer.chatbot.history');
     });
 });

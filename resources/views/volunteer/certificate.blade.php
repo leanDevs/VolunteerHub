@@ -42,10 +42,10 @@
         }
     </style>
 </head>
-<body class="bg-slate-800 font-sans min-h-screen flex flex-col items-center justify-center p-4">
+<body class="bg-slate-800 font-sans min-h-screen flex flex-col items-center justify-center p-2 sm:p-4">
 
     <!-- Print controls -->
-    <div class="no-print mb-6 flex gap-3">
+    <div class="no-print mb-4 sm:mb-6 flex flex-wrap justify-center gap-3">
         <button onclick="window.print()" class="bg-jci-accent hover:bg-amber-600 text-jci-dark font-black text-xs px-5 py-2.5 rounded-xl shadow-lg flex items-center gap-2 transition duration-200">
             <i class="fa-solid fa-print"></i> Print or Save as PDF
         </button>
@@ -55,7 +55,7 @@
     </div>
 
     <!-- The Certificate Canvas -->
-    <div class="bg-white max-w-4xl w-full border-[16px] border-double border-jci-dark p-8 md:p-12 relative shadow-2xl overflow-hidden aspect-[1.414/1]">
+    <div class="bg-white max-w-4xl w-full border-[8px] sm:border-[12px] md:border-[16px] border-double border-jci-dark p-4 sm:p-8 md:p-12 relative shadow-2xl overflow-hidden min-h-[500px]">
         
         <!-- Aesthetic Corner Ornaments -->
         <div class="absolute top-4 left-4 w-12 h-12 border-t-2 border-l-2 border-jci-accent"></div>

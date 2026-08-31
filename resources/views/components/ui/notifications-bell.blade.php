@@ -23,7 +23,7 @@
 
     <!-- Dropdown Menu -->
     <div id="notifications-dropdown-menu" 
-         class="hidden absolute right-0 mt-3 w-80 bg-white rounded-3xl border border-slate-100 shadow-2xl z-[999] overflow-hidden transform origin-top-right transition-all duration-200">
+         class="hidden absolute right-0 mt-3 w-80 max-w-[88vw] bg-white rounded-3xl border border-slate-100 shadow-2xl z-[999] overflow-hidden transform origin-top-right transition-all duration-200">
         <!-- Header -->
         <div class="px-5 py-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
             <h4 class="font-extrabold text-xs text-slate-800 uppercase tracking-wider flex items-center gap-1.5">

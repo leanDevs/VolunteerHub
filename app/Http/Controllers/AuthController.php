@@ -67,6 +67,114 @@ class AuthController extends Controller
     }
 
     /**
+     * Show volunteer registration form.
+     */
+    public function showVolunteerRegister()
+    {
+        if (Auth::check()) {
+            return $this->redirectBasedOnRole(Auth::user());
+        }
+
+        $skills = \App\Models\Skill::all();
+
+        return view('auth.register-volunteer', compact('skills'));
+    }
+
+    /**
+     * Handle volunteer registration request.
+     */
+    public function registerVolunteer(Request $request)
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'bio' => ['nullable', 'string', 'max:1000'],
+            'skills' => ['nullable', 'array'],
+            'skills.*' => ['exists:skills,id'],
+        ]);
+
+        $user = \App\Models\User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => \Illuminate\Support\Facades\Hash::make($data['password']),
+            'role' => 'volunteer',
+            'status' => 'approved',
+            'phone' => $data['phone'] ?? null,
+            'bio' => $data['bio'] ?? null,
+            'availability' => 'available',
+        ]);
+
+        if (!empty($data['skills'])) {
+            $user->skills()->sync($data['skills']);
+        }
+
+        Auth::login($user);
+
+        return redirect()->route('volunteer.dashboard')
+            ->with('success', "Welcome to VolunteerHub, {$user->name}! Your volunteer account is ready.");
+    }
+
+    /**
+     * Show organization registration form.
+     */
+    public function showOrgRegister()
+    {
+        if (Auth::check()) {
+            return $this->redirectBasedOnRole(Auth::user());
+        }
+
+        return view('auth.register-org');
+    }
+
+    /**
+     * Handle organization registration request.
+     */
+    public function registerOrg(Request $request)
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'phone' => ['required', 'string', 'max:20'],
+            'bio' => ['required', 'string', 'max:1000'],
+        ]);
+
+        $user = \App\Models\User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => \Illuminate\Support\Facades\Hash::make($data['password']),
+            'role' => 'organization',
+            'status' => 'pending',
+            'phone' => $data['phone'],
+            'bio' => $data['bio'],
+        ]);
+
+        // Send notification to all admin accounts for audit review
+        $admins = \App\Models\User::where('role', 'admin')->get();
+        foreach ($admins as $admin) {
+            DB::table('notifications')->insert([
+                'id' => \Illuminate\Support\Str::uuid(),
+                'type' => 'App\\Notifications\\GenericNotification',
+                'notifiable_type' => 'App\\Models\\User',
+                'notifiable_id' => $admin->id,
+                'data' => json_encode([
+                    'title' => 'New Organization Application',
+                    'message' => "Organization '{$user->name}' has applied for registration and is awaiting compliance audit.",
+                    'icon' => 'fa-building-circle-check',
+                ]),
+                'read_at' => null,
+                'created_at' => \Carbon\Carbon::now(),
+                'updated_at' => \Carbon\Carbon::now(),
+            ]);
+        }
+
+        return redirect()->route('login')
+            ->with('status', "Application submitted for '{$user->name}'! Your organization account is undergoing compliance review by the Admin.");
+    }
+
+    /**
      * Log the user out of the application.
      */
     public function logout(Request $request)
@@ -95,6 +203,46 @@ class AuthController extends Controller
                 Auth::logout();
                 return redirect()->route('login');
         }
+    }
+
+    /**
+     * Show profile edit view.
+     */
+    public function showProfile()
+    {
+        $user = Auth::user();
+        return view('auth.profile-edit', compact('user'));
+    }
+
+    /**
+     * Update user profile information.
+     */
+    public function updateProfile(Request $request)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $user->id],
+            'phone' => ['nullable', 'string', 'max:20'],
+            'bio' => ['nullable', 'string', 'max:1000'],
+            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $user->name = $data['name'];
+        $user->email = $data['email'];
+        $user->phone = $data['phone'] ?? null;
+        $user->bio = $data['bio'] ?? null;
+
+        if ($request->filled('password')) {
+            $user->password = \Illuminate\Support\Facades\Hash::make($request->password);
+        }
+
+        $user->save();
+
+        return redirect()->route('profile.show')
+            ->with('success', 'Your profile details have been updated successfully.');
     }
 
     /**

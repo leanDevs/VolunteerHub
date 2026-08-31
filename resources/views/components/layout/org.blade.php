@@ -1,27 +1,31 @@
 <x-layout.app title="VolunteerHub - Organization Portal">
     <div class="flex-grow flex flex-col min-h-screen">
         <!-- JCI Corporate Style Top Header -->
-        <header class="bg-jci-blue text-white shadow-md border-b-4 border-jci-accent sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-4 md:px-8 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+        <header class="bg-jci-blue text-white shadow-md border-b-4 border-jci-accent sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-3 sm:py-4 flex justify-between items-center gap-3">
                 <!-- Brand Section -->
-                <div class="flex items-center gap-3">
-                    <div class="p-2 bg-white rounded-lg text-jci-blue"><i class="fa-solid fa-building text-lg"></i></div>
-                    <div>
-                        <span class="bg-jci-accent text-jci-dark text-[9px] font-black uppercase px-2 py-0.5 rounded">Active Partner Org</span>
-                        <h2 class="font-extrabold text-base tracking-tight">{{ Auth::user()->name }}</h2>
+                <div class="flex items-center gap-2.5 min-w-0">
+                    <div class="p-2 bg-white rounded-lg text-jci-blue shrink-0"><i class="fa-solid fa-building text-base sm:text-lg"></i></div>
+                    <div class="min-w-0">
+                        <span class="bg-jci-accent text-jci-dark text-[8px] sm:text-[9px] font-black uppercase px-2 py-0.5 rounded leading-none inline-block">Active Partner Org</span>
+                        <h2 class="font-extrabold text-xs sm:text-base tracking-tight truncate">{{ Auth::user()->name }}</h2>
                     </div>
                 </div>
                 
                 <!-- Navigation / Actions -->
-                <div class="flex items-center gap-4">
-                    <span class="text-xs text-blue-200 font-semibold"><i class="fa-solid fa-globe"></i> Surigao City Division</span>
-                    <div class="h-6 w-px bg-blue-700"></div>
+                <div class="flex items-center gap-2 sm:gap-4 shrink-0">
+                    <a href="{{ route('profile.show') }}" class="text-xs text-white hover:text-jci-accent font-bold flex items-center gap-1.5 transition px-2 py-1 rounded-lg hover:bg-white/10">
+                        <i class="fa-solid fa-user-pen text-sky-200 text-xs"></i>
+                        <span class="hidden sm:inline">Edit Profile</span>
+                    </a>
+                    <div class="h-5 w-px bg-blue-600/50"></div>
                     <x-ui.notifications-bell color="white" />
-                    <div class="h-6 w-px bg-blue-700"></div>
+                    <div class="h-5 w-px bg-blue-600/50"></div>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
-                        <button type="submit" class="bg-red-500/20 hover:bg-red-500/80 text-white border border-red-500/30 text-[10px] font-bold px-3 py-1.5 rounded-lg transition duration-200">
-                            <i class="fa-solid fa-sign-out-alt"></i> Logout
+                        <button type="submit" class="bg-rose-500/20 hover:bg-rose-500/80 text-white border border-rose-500/30 text-[10px] font-bold px-2.5 py-1 rounded-lg transition duration-200 flex items-center gap-1">
+                            <i class="fa-solid fa-sign-out-alt"></i>
+                            <span class="hidden sm:inline">Logout</span>
                         </button>
                     </form>
                 </div>
@@ -29,7 +33,7 @@
         </header>
 
         <!-- Org Main Dashboard Canvas -->
-        <main class="max-w-7xl mx-auto px-4 md:px-8 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 flex-grow w-full">
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-6 sm:py-8 grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 flex-grow w-full">
             {{ $slot }}
         </main>
     </div>

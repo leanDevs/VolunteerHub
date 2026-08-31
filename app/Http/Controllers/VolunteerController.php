@@ -8,6 +8,8 @@ use App\Models\Event;
 use App\Models\Task;
 use App\Models\Assignment;
 use App\Models\Certificate;
+use App\Models\ChatbotRule;
+use App\Models\ChatbotResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -205,5 +207,111 @@ class VolunteerController extends Controller
             ->firstOrFail();
 
         return view('volunteer.certificate', compact('certificate'));
+    }
+
+    /**
+     * Process Chatbot Question for Volunteer.
+     */
+    public function askChatbot(Request $request)
+    {
+        $request->validate([
+            'message' => 'required|string|max:500'
+        ]);
+
+        $volunteer = Auth::user();
+        $message = trim($request->message);
+        $lowerMsg = strtolower($message);
+
+        $rules = ChatbotRule::all();
+        $matchedRule = null;
+
+        foreach ($rules as $rule) {
+            $keyword = strtolower($rule->keyword);
+            if (!empty($keyword) && str_contains($lowerMsg, $keyword)) {
+                $matchedRule = $rule;
+                break;
+            }
+        }
+
+        if ($matchedRule) {
+            $response = $matchedRule->response;
+            $intent = $matchedRule->keyword;
+            $confidence = 0.95;
+        } else {
+            // Dynamic Contextual Responses based on user intent
+            if (str_contains($lowerMsg, 'skill') || str_contains($lowerMsg, 'learn')) {
+                $skillCount = $volunteer->skills()->count();
+                $skillList = $volunteer->skills()->pluck('name')->join(', ');
+                $response = "You currently have {$skillCount} skill(s) on record" . ($skillList ? " ({$skillList})" : "") . ". You can add new skills or check recommended skills directly from your dashboard!";
+                $intent = 'skills_info';
+                $confidence = 0.85;
+            } elseif (str_contains($lowerMsg, 'duty') || str_contains($lowerMsg, 'task') || str_contains($lowerMsg, 'assignment')) {
+                $assignmentCount = Assignment::where('user_id', $volunteer->id)->count();
+                $pendingCount = Assignment::where('user_id', $volunteer->id)->where('status', 'approved')->count();
+                $response = "You have {$assignmentCount} total assignment(s) logged, with {$pendingCount} active duty task(s) ready to perform. Click 'Mark Completed' on your dashboard when done!";
+                $intent = 'tasks_info';
+                $confidence = 0.85;
+            } elseif (str_contains($lowerMsg, 'certific') || str_contains($lowerMsg, 'cert') || str_contains($lowerMsg, 'award')) {
+                $certCount = Certificate::where('user_id', $volunteer->id)->count();
+                $response = "You have earned {$certCount} Certificate(s) of Appreciation. Official certificates are automatically generated as print-ready PDFs when you mark completed duties.";
+                $intent = 'certificates_info';
+                $confidence = 0.85;
+            } elseif (str_contains($lowerMsg, 'hour') || str_contains($lowerMsg, 'time') || str_contains($lowerMsg, 'log')) {
+                $completedCount = Assignment::where('user_id', $volunteer->id)->where('status', 'completed')->count();
+                $loggedHours = $completedCount * 4.0;
+                $response = "You have logged approximately {$loggedHours} volunteer hours across completed community projects. Keep up the great work!";
+                $intent = 'hours_info';
+                $confidence = 0.85;
+            } elseif (str_contains($lowerMsg, 'jci') || str_contains($lowerMsg, 'surigao') || str_contains($lowerMsg, 'wensie') || str_contains($lowerMsg, 'about')) {
+                $response = "JCI Surigao Wensies is a premier socio-civic leadership chapter in Surigao City dedicated to community development, environmental protection, and empowering local leaders.";
+                $intent = 'jci_info';
+                $confidence = 0.90;
+            } else {
+                $response = "Hello! I am your JCI VolunteerHub Assistant. I can help you check your certificates, task duties, skills, or answer questions about JCI Surigao Wensies projects. Try asking: 'How do I get certificates?' or 'What are my current tasks?'";
+                $intent = 'general_faq';
+                $confidence = 0.60;
+            }
+        }
+
+        // Save conversation history to database
+        $chatLog = ChatbotResponse::create([
+            'user_id' => $volunteer->id,
+            'message' => $message,
+            'response' => $response,
+            'intent' => $intent,
+            'confidence' => $confidence,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => $chatLog->message,
+            'response' => $chatLog->response,
+            'intent' => $chatLog->intent,
+            'time' => $chatLog->created_at->format('g:i A'),
+        ]);
+    }
+
+    /**
+     * Retrieve Chatbot Conversation History for Volunteer.
+     */
+    public function chatbotHistory()
+    {
+        $history = ChatbotResponse::where('user_id', Auth::id())
+            ->orderBy('created_at', 'asc')
+            ->take(30)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'message' => $item->message,
+                    'response' => $item->response,
+                    'intent' => $item->intent,
+                    'time' => $item->created_at->format('g:i A'),
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'history' => $history
+        ]);
     }
 }

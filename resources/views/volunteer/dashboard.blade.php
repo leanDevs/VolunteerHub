@@ -20,6 +20,18 @@
             <p class="text-xs text-slate-500 flex items-center justify-center gap-1">
                 <i class="fa-solid fa-location-dot"></i> Surigao City, Caraga Region
             </p>
+            @if($volunteer->phone)
+                <p class="text-[11px] text-slate-400 mt-1"><i class="fa-solid fa-phone text-[10px]"></i> {{ $volunteer->phone }}</p>
+            @endif
+            @if($volunteer->bio)
+                <p class="text-xs text-slate-600 italic mt-2 bg-slate-50/80 p-2.5 rounded-xl border border-slate-100 text-left">{{ $volunteer->bio }}</p>
+            @endif
+
+            <div class="mt-3">
+                <a href="{{ route('profile.show') }}" class="inline-flex items-center gap-1.5 bg-sky-50 hover:bg-sky-100 text-jci-blue border border-sky-200 px-3.5 py-1.5 rounded-xl text-xs font-extrabold transition shadow-xs">
+                    <i class="fa-solid fa-user-pen text-[11px]"></i> Edit Profile
+                </a>
+            </div>
 
             @php
                 $completedHours = $assignments->where('status', 'completed')->sum('hours_logged');
@@ -149,6 +161,25 @@
                     </div>
                 @endif
             </div>
+        </div>
+
+        <!-- AI Chatbot Interactive Card -->
+        <div class="glass-card premium-shadow rounded-3xl p-6 bg-gradient-to-br from-jci-blue via-jci-dark to-slate-900 text-white space-y-3.5 animate-fade-in-up" style="animation-delay: 150ms;">
+            <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-2xl bg-white/15 backdrop-blur-md border border-white/20 flex items-center justify-center text-jci-accent text-xl">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div>
+                    <h4 class="font-extrabold text-sm text-white">Need Quick Answers?</h4>
+                    <p class="text-[10px] text-sky-200">JCI Volunteer AI Assistant</p>
+                </div>
+            </div>
+            <p class="text-xs text-slate-200 leading-relaxed">
+                Get instant guidance on your duties, certificates, skill matching, and JCI Surigao Wensies programs.
+            </p>
+            <button type="button" onclick="toggleVolunteerChatbot()" class="w-full bg-white text-jci-dark hover:bg-sky-50 font-bold text-xs py-2.5 rounded-xl transition duration-200 flex items-center justify-center gap-2 shadow-md">
+                <i class="fa-solid fa-comments text-jci-blue"></i> Launch AI Assistant Chat
+            </button>
         </div>
     </div>
 
