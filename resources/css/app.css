@@ -27,8 +27,8 @@
 
 /* Premium smooth shadow utility */
 .premium-shadow {
-    box-shadow: 0 10px 30px -10px rgba(10, 49, 84, 0.08), 
-                0 1px 3px -1px rgba(10, 49, 84, 0.03);
+    box-shadow: 0 10px 30px -10px rgba(0, 151, 214, 0.08), 
+                0 1px 3px -1px rgba(0, 151, 214, 0.03);
 }
 
 /* Hover scales and transitions */
@@ -38,7 +38,7 @@
 }
 .hover-lift:hover {
     transform: translateY(-3px);
-    box-shadow: 0 20px 40px -15px rgba(10, 49, 84, 0.12);
+    box-shadow: 0 20px 40px -15px rgba(0, 151, 214, 0.12);
 }
 
 /* Custom Fade In Up Animation */
@@ -62,6 +62,6 @@
     transition: all 0.2s ease-in-out;
 }
 .premium-input:focus {
-    border-color: #0F4C81;
-    box-shadow: 0 0 0 3px rgba(15, 76, 129, 0.15);
+    border-color: #0097d6;
+    box-shadow: 0 0 0 3px rgba(0, 151, 214, 0.15);
 }

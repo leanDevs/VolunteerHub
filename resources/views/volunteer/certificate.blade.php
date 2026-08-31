@@ -17,9 +17,9 @@
                 extend: {
                     colors: {
                         jci: {
-                            blue: '#0F4C81',
-                            dark: '#0A3154',
-                            light: '#1B75BC',
+                            blue: '#0097d6',
+                            dark: '#0073a8',
+                            light: '#38bdf8',
                             accent: '#F5A623',
                         }
                     },
